@@ -5,30 +5,65 @@
 
 trigger:
 - master
+- Dev
+- QA
 
 pool:
   vmImage: 'windows-latest'
 
-variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+stages:
 
-steps:
-- task: NuGetToolInstaller@1
+- ${{ if eq( variables['Build.SourceBranchName'], 'master' ) }}:
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
+  - stage: master
 
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    jobs:
 
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    - job: masterjob
+
+      pool:
+
+        vmImage: ubuntu-latest
+
+      steps:
+
+        - task: Bash@3
+
+          displayName: master
+
+          inputs:
+
+            targetType: inline
+
+            script: |
+
+              echo "triggered by ${Build.SourceBranchName}"
+
+              echo "master"
+
+
+
+- ${{ elseif eq( variables['Build.SourceBranchName'], 'Dev' ) }}:
+
+  - stage: stage2
+
+    jobs:
+
+    - job: dev_repo
+
+      steps:
+
+        - task: Bash@3
+
+          displayName: dev_repo
+
+          inputs:
+
+            targetType: inline
+
+            script: |
+
+              echo "triggered by $(Build.SourceBranchName)"
+
+              echo "dev"
+
