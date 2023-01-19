@@ -14,7 +14,7 @@ resources:
          branches:
            include:
             - master
-            - dev/*
+            - Dev/*
             - QA/*
 
 pool:
